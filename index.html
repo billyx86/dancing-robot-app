@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Beep Boop Disco Bot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0c1218;
+  --surface: #141c26;
+  --steel: #1e2a38;
+  --steel-light: #2a3a4d;
+  --lime: #c8ff2e;
+  --lime-dim: #8ab81f;
+  --hot: #ff4d6a;
+  --text: #e8eef5;
+  --muted: #7a8a9a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  min-height: 100%;
+  font-family: 'Outfit', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 100%, rgba(200,255,46,0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 20% 20%, rgba(30,42,56,0.9) 0%, transparent 50%),
+    var(--bg);
+}
+.stage {
+  width: 100%;
+  max-width: 720px;
+  padding: 1.5rem 1rem 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+header {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+h1 {
+  font-weight: 900;
+  font-size: clamp(1.8rem, 6vw, 3rem);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  background: linear-gradient(135deg, var(--lime) 0%, #fff 50%, var(--lime) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-transform: uppercase;
+}
+.tagline {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-top: 0.4rem;
+  letter-spacing: 0.04em;
+}
+.caption {
+  min-height: 2.5rem;
+  font-weight: 800;
+  font-size: clamp(0.95rem, 3vw, 1.15rem);
+  color: var(--lime);
+  text-align: center;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  animation: caption-pop 0.4s ease;
+}
+@keyframes caption-pop {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.robot-wrap {
+  position: relative;
+  width: min(92vw, 420px);
+  aspect-ratio: 1;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.robot-wrap:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 8px;
+  border-radius: 16px;
+}
+.floor {
+  position: absolute;
+  inset: auto 8% 6% 8%;
+  height: 18%;
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(200,255,46,0.15) 50%, transparent 100%),
+    repeating-linear-gradient(90deg, var(--steel) 0 12px, transparent 12px 24px),
+    repeating-linear-gradient(0deg, var(--steel) 0 12px, transparent 12px 24px);
+  border-radius: 50%;
+  filter: blur(0.5px);
+  opacity: 0.7;
+  transform: perspective(200px) rotateX(60deg);
+  animation: floor-pulse 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes floor-pulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.85; }
+}
+.note {
+  position: absolute;
+  font-size: 1.4rem;
+  color: var(--lime);
+  opacity: 0;
+  pointer-events: none;
+  animation: float-note 3s ease-in-out infinite;
+}
+.note:nth-child(1) { left: 6%; top: 28%; animation-delay: 0s; }
+.note:nth-child(2) { right: 8%; top: 22%; animation-delay: 0.8s; }
+.note:nth-child(3) { left: 12%; top: 48%; animation-delay: 1.6s; }
+.note:nth-child(4) { right: 10%; top: 45%; animation-delay: 2.2s; }
+@keyframes float-note {
+  0% { transform: translateY(0) rotate(-8deg) scale(0.8); opacity: 0; }
+  20% { opacity: 0.9; }
+  80% { opacity: 0.7; }
+  100% { transform: translateY(-48px) rotate(12deg) scale(1.1); opacity: 0; }
+}
+.sparkle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--lime);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--lime);
+  pointer-events: none;
+  animation: spark 2s ease-in-out infinite;
+}
+.sparkle:nth-child(5) { left: 18%; top: 18%; animation-delay: 0.3s; }
+.sparkle:nth-child(6) { right: 20%; top: 30%; animation-delay: 1.1s; }
+.sparkle:nth-child(7) { left: 22%; bottom: 30%; animation-delay: 1.8s; }
+@keyframes spark {
+  0%, 100% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.4); opacity: 1; }
+}
+svg.bot {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+/* Dance mode classes on .bot */
+.bot .torso-group { transform-origin: 200px 230px; }
+.bot .head-group { transform-origin: 200px 120px; }
+.bot .arm-l { transform-origin: 130px 200px; }
+.bot .arm-r { transform-origin: 270px 200px; }
+.bot .leg-l { transform-origin: 175px 310px; }
+.bot .leg-r { transform-origin: 225px 310px; }
+.bot .antenna { transform-origin: 200px 58px; }
+.bot .eye-l-pupil, .bot .eye-r-pupil { transform-origin: center; }
+
+/* GROOVE default */
+.mode-groove .body-bounce { animation: bounce 0.55s ease-in-out infinite; }
+.mode-groove .torso-group { animation: hip-sway 0.55s ease-in-out infinite; }
+.mode-groove .arm-l { animation: arm-wave-l 0.55s ease-in-out infinite; }
+.mode-groove .arm-r { animation: arm-wave-r 0.55s ease-in-out infinite; }
+.mode-groove .leg-l { animation: leg-kick-l 0.55s ease-in-out infinite; }
+.mode-groove .leg-r { animation: leg-kick-r 0.55s ease-in-out infinite; }
+.mode-groove .antenna { animation: antenna-wobble 0.4s ease-in-out infinite; }
+.mode-groove .head-group { animation: head-bob 0.55s ease-in-out infinite; }
+
+/* ROBOT */
+.mode-robot .body-bounce { animation: robot-bounce 0.7s steps(2) infinite; }
+.mode-robot .torso-group { animation: robot-sway 0.7s steps(2) infinite; }
+.mode-robot .arm-l { animation: robot-arm-l 0.7s steps(2) infinite; }
+.mode-robot .arm-r { animation: robot-arm-r 0.7s steps(2) infinite; }
+.mode-robot .leg-l { animation: robot-leg-l 0.7s steps(2) infinite; }
+.mode-robot .leg-r { animation: robot-leg-r 0.7s steps(2) infinite; }
+.mode-robot .antenna { animation: antenna-spin 1.4s linear infinite; }
+.mode-robot .head-group { animation: robot-head 0.7s steps(2) infinite; }
+
+/* BREAKDANCE */
+.mode-breakdance .body-bounce { animation: break-spin 1.1s ease-in-out infinite; }
+.mode-breakdance .torso-group { animation: break-torso 1.1s ease-in-out infinite; }
+.mode-breakdance .arm-l { animation: break-arm-l 0.35s ease-in-out infinite; }
+.mode-breakdance .arm-r { animation: break-arm-r 0.35s ease-in-out infinite; }
+.mode-breakdance .leg-l { animation: break-leg-l 0.55s ease-in-out infinite; }
+.mode-breakdance .leg-r { animation: break-leg-r 0.55s ease-in-out infinite; }
+.mode-breakdance .antenna { animation: antenna-spin 0.5s linear infinite; }
+.mode-breakdance .head-group { animation: head-whip 0.55s ease-in-out infinite; }
+
+/* PANIC */
+.mode-panic .body-bounce { animation: panic-bounce 0.18s ease-in-out infinite; }
+.mode-panic .torso-group { animation: panic-sway 0.18s ease-in-out infinite; }
+.mode-panic .arm-l { animation: panic-arm-l 0.15s ease-in-out infinite; }
+.mode-panic .arm-r { animation: panic-arm-r 0.15s ease-in-out infinite; }
+.mode-panic .leg-l { animation: panic-leg-l 0.15s ease-in-out infinite; }
+.mode-panic .leg-r { animation: panic-leg-r 0.15s ease-in-out infinite; }
+.mode-panic .antenna { animation: antenna-spin 0.2s linear infinite; }
+.mode-panic .head-group { animation: panic-head 0.2s ease-in-out infinite; }
+.mode-panic .led { animation: led-panic 0.15s steps(2) infinite !important; }
+
+/* Shared forever animations */
+.eye-l-lid { animation: blink-l 3.2s ease-in-out infinite; transform-origin: 165px 108px; }
+.eye-r-lid { animation: blink-r 4.1s ease-in-out infinite; transform-origin: 235px 108px; }
+.led { animation: led-pulse 1s ease-in-out infinite; }
+.eye-l-pupil { animation: look-l 5s ease-in-out infinite; }
+.eye-r-pupil { animation: look-r 5.5s ease-in-out infinite; }
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-18px); }
+}
+@keyframes hip-sway {
+  0%, 100% { transform: rotate(-6deg) translateX(-4px); }
+  50% { transform: rotate(6deg) translateX(4px); }
+}
+@keyframes arm-wave-l {
+  0%, 100% { transform: rotate(25deg); }
+  50% { transform: rotate(-55deg); }
+}
+@keyframes arm-wave-r {
+  0%, 100% { transform: rotate(-25deg); }
+  50% { transform: rotate(55deg); }
+}
+@keyframes leg-kick-l {
+  0%, 100% { transform: rotate(8deg); }
+  50% { transform: rotate(-14deg); }
+}
+@keyframes leg-kick-r {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(14deg); }
+}
+@keyframes antenna-wobble {
+  0%, 100% { transform: rotate(-18deg); }
+  50% { transform: rotate(18deg); }
+}
+@keyframes antenna-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes head-bob {
+  0%, 100% { transform: rotate(-3deg) translateY(0); }
+  50% { transform: rotate(3deg) translateY(-4px); }
+}
+@keyframes blink-l {
+  0%, 42%, 46%, 100% { transform: scaleY(1); }
+  44% { transform: scaleY(0.08); }
+}
+@keyframes blink-r {
+  0%, 58%, 62%, 100% { transform: scaleY(1); }
+  60% { transform: scaleY(0.08); }
+}
+@keyframes led-pulse {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px var(--lime)); }
+  50% { opacity: 0.45; filter: drop-shadow(0 0 12px var(--lime)); }
+}
+@keyframes led-panic {
+  0% { fill: var(--lime); }
+  50% { fill: var(--hot); }
+}
+@keyframes look-l {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(3px, 2px); }
+  50% { transform: translate(-2px, 1px); }
+  75% { transform: translate(2px, -2px); }
+}
+@keyframes look-r {
+  0%, 100% { transform: translate(0, 0); }
+  30% { transform: translate(-3px, 1px); }
+  55% { transform: translate(2px, 2px); }
+  80% { transform: translate(-1px, -2px); }
+}
+
+/* Robot mode */
+@keyframes robot-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes robot-sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes robot-arm-l {
+  0%, 100% { transform: rotate(90deg); }
+  50% { transform: rotate(0deg); }
+}
+@keyframes robot-arm-r {
+  0%, 100% { transform: rotate(-90deg); }
+  50% { transform: rotate(0deg); }
+}
+@keyframes robot-leg-l {
+  0%, 100% { transform: rotate(12deg); }
+  50% { transform: rotate(0deg); }
+}
+@keyframes robot-leg-r {
+  0%, 100% { transform: rotate(-12deg); }
+  50% { transform: rotate(0deg); }
+}
+@keyframes robot-head {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+
+/* Breakdance */
+@keyframes break-spin {
+  0% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-20px) rotate(90deg); }
+  50% { transform: translateY(0) rotate(180deg); }
+  75% { transform: translateY(-20px) rotate(270deg); }
+  100% { transform: translateY(0) rotate(360deg); }
+}
+@keyframes break-torso {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.92) rotate(5deg); }
+}
+@keyframes break-arm-l {
+  0%, 100% { transform: rotate(-80deg); }
+  50% { transform: rotate(80deg); }
+}
+@keyframes break-arm-r {
+  0%, 100% { transform: rotate(80deg); }
+  50% { transform: rotate(-80deg); }
+}
+@keyframes break-leg-l {
+  0%, 100% { transform: rotate(30deg); }
+  50% { transform: rotate(-30deg); }
+}
+@keyframes break-leg-r {
+  0%, 100% { transform: rotate(-30deg); }
+  50% { transform: rotate(30deg); }
+}
+@keyframes head-whip {
+  0%, 100% { transform: rotate(-15deg); }
+  50% { transform: rotate(15deg); }
+}
+
+/* Panic */
+@keyframes panic-bounce {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-6px, -8px); }
+  50% { transform: translate(6px, -4px); }
+  75% { transform: translate(-4px, -10px); }
+}
+@keyframes panic-sway {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(10deg); }
+}
+@keyframes panic-arm-l {
+  0%, 100% { transform: rotate(-100deg); }
+  50% { transform: rotate(-20deg); }
+}
+@keyframes panic-arm-r {
+  0%, 100% { transform: rotate(100deg); }
+  50% { transform: rotate(20deg); }
+}
+@keyframes panic-leg-l {
+  0%, 100% { transform: rotate(20deg); }
+  50% { transform: rotate(-20deg); }
+}
+@keyframes panic-leg-r {
+  0%, 100% { transform: rotate(-20deg); }
+  50% { transform: rotate(20deg); }
+}
+@keyframes panic-head {
+  0%, 100% { transform: rotate(-20deg) scale(1.05); }
+  50% { transform: rotate(20deg) scale(0.98); }
+}
+
+.modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+.mode-btn {
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  border: 2px solid var(--steel-light);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.mode-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--lime-dim);
+}
+.mode-btn:active { transform: translateY(0) scale(0.97); }
+.mode-btn.active {
+  background: var(--lime);
+  color: #0a1008;
+  border-color: var(--lime);
+  box-shadow: 0 0 24px rgba(200,255,46,0.35);
+}
+.hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 0.25rem;
+}
+.mode-label {
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 0.75rem;
+}
+.mode-label span {
+  color: var(--lime);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-groove .body-bounce,
+  .mode-groove .torso-group,
+  .mode-groove .arm-l,
+  .mode-groove .arm-r,
+  .mode-groove .leg-l,
+  .mode-groove .leg-r,
+  .mode-groove .antenna,
+  .mode-groove .head-group,
+  .mode-robot .body-bounce,
+  .mode-robot .torso-group,
+  .mode-robot .arm-l,
+  .mode-robot .arm-r,
+  .mode-robot .leg-l,
+  .mode-robot .leg-r,
+  .mode-robot .antenna,
+  .mode-robot .head-group,
+  .mode-breakdance .body-bounce,
+  .mode-breakdance .torso-group,
+  .mode-breakdance .arm-l,
+  .mode-breakdance .arm-r,
+  .mode-breakdance .leg-l,
+  .mode-breakdance .leg-r,
+  .mode-breakdance .antenna,
+  .mode-breakdance .head-group,
+  .mode-panic .body-bounce,
+  .mode-panic .torso-group,
+  .mode-panic .arm-l,
+  .mode-panic .arm-r,
+  .mode-panic .leg-l,
+  .mode-panic .leg-r,
+  .mode-panic .antenna,
+  .mode-panic .head-group,
+  .eye-l-lid, .eye-r-lid, .led,
+  .eye-l-pupil, .eye-r-pupil,
+  .note, .sparkle, .floor {
+    animation: none !important;
+  }
+  .caption { animation: none; }
+}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <header>
+      <h1>Beep Boop Disco Bot</h1>
+      <p class="tagline">Nightclub firmware. Zero dignity. Maximum groove.</p>
+    </header>
+
+    <p class="caption" id="caption">ERROR 404: DIGNITY NOT FOUND</p>
+
+    <div class="robot-wrap" id="robotTap" role="button" tabindex="0" aria-label="Tap to change dance mode">
+      <div class="floor" aria-hidden="true"></div>
+      <span class="note" aria-hidden="true">♪</span>
+      <span class="note" aria-hidden="true">♫</span>
+      <span class="note" aria-hidden="true">♩</span>
+      <span class="note" aria-hidden="true">♬</span>
+      <span class="sparkle" aria-hidden="true"></span>
+      <span class="sparkle" aria-hidden="true"></span>
+      <span class="sparkle" aria-hidden="true"></span>
+
+      <svg class="bot mode-groove" id="bot" viewBox="0 0 400 420" xmlns="http://www.w3.org/2000/svg" aria-labelledby="botTitle botDesc">
+        <title id="botTitle">Dancing robot</title>
+        <desc id="botDesc">A silly blocky robot with googly eyes dancing on a disco floor</desc>
+
+        <g class="body-bounce">
+          <!-- shadow -->
+          <ellipse cx="200" cy="390" rx="70" ry="12" fill="#000" opacity="0.35"/>
+
+          <!-- LEFT LEG -->
+          <g class="leg-l">
+            <rect x="158" y="300" width="28" height="62" rx="8" fill="#2a3a4d" stroke="#1a2533" stroke-width="3"/>
+            <rect x="148" y="354" width="48" height="18" rx="6" fill="#1e2a38" stroke="#141c26" stroke-width="2"/>
+            <rect x="152" y="358" width="16" height="6" rx="2" fill="#c8ff2e" class="led" opacity="0.85"/>
+          </g>
+
+          <!-- RIGHT LEG -->
+          <g class="leg-r">
+            <rect x="214" y="300" width="28" height="62" rx="8" fill="#2a3a4d" stroke="#1a2533" stroke-width="3"/>
+            <rect x="204" y="354" width="48" height="18" rx="6" fill="#1e2a38" stroke="#141c26" stroke-width="2"/>
+            <rect x="232" y="358" width="16" height="6" rx="2" fill="#c8ff2e" class="led" opacity="0.85"/>
+          </g>
+
+          <!-- TORSO -->
+          <g class="torso-group">
+            <rect x="130" y="175" width="140" height="135" rx="18" fill="#2a3a4d" stroke="#1a2533" stroke-width="4"/>
+            <rect x="142" y="190" width="116" height="72" rx="10" fill="#141c26" stroke="#0c1218" stroke-width="2"/>
+            <!-- LED panel dots -->
+            <circle cx="165" cy="212" r="7" fill="#c8ff2e" class="led"/>
+            <circle cx="190" cy="212" r="7" fill="#c8ff2e" class="led" style="animation-delay:0.15s"/>
+            <circle cx="215" cy="212" r="7" fill="#c8ff2e" class="led" style="animation-delay:0.3s"/>
+            <circle cx="240" cy="212" r="7" fill="#c8ff2e" class="led" style="animation-delay:0.45s"/>
+            <rect x="155" y="232" width="90" height="10" rx="3" fill="#c8ff2e" class="led" opacity="0.7"/>
+            <rect x="165" y="250" width="70" height="6" rx="2" fill="#8ab81f" opacity="0.5"/>
+            <!-- belly button bolt -->
+            <circle cx="200" cy="280" r="8" fill="#1e2a38" stroke="#c8ff2e" stroke-width="2"/>
+            <circle cx="200" cy="280" r="3" fill="#c8ff2e"/>
+
+            <!-- LEFT ARM -->
+            <g class="arm-l">
+              <rect x="88" y="185" width="48" height="22" rx="10" fill="#2a3a4d" stroke="#1a2533" stroke-width="3"/>
+              <rect x="78" y="200" width="22" height="70" rx="10" fill="#2a3a4d" stroke="#1a2533" stroke-width="3"/>
+              <circle cx="89" cy="278" r="16" fill="#1e2a38" stroke="#c8ff2e" stroke-width="3"/>
+              <circle cx="89" cy="278" r="6" fill="#c8ff2e" class="led"/>
+            </g>
+
+            <!-- RIGHT ARM -->
+            <g class="arm-r">
+              <rect x="264" y="185" width="48" height="22" rx="10" fill="#2a3a4d" stroke="#1a2533" stroke-width="3"/>
+              <rect x="300" y="200" width="22" height="70" rx="10" fill="#2a3a4d" stroke="#1a2533" stroke-width="3"/>
+              <circle cx="311" cy="278" r="16" fill="#1e2a38" stroke="#c8ff2e" stroke-width="3"/>
+              <circle cx="311" cy="278" r="6" fill="#c8ff2e" class="led"/>
+            </g>
+          </g>
+
+          <!-- HEAD -->
+          <g class="head-group">
+            <!-- neck -->
+            <rect x="185" y="155" width="30" height="24" rx="4" fill="#1e2a38" stroke="#141c26" stroke-width="2"/>
+
+            <!-- antenna -->
+            <g class="antenna">
+              <line x1="200" y1="58" x2="200" y2="78" stroke="#2a3a4d" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="200" cy="50" r="12" fill="#ff4d6a" stroke="#1a2533" stroke-width="2"/>
+              <circle cx="200" cy="50" r="5" fill="#fff" opacity="0.5"/>
+            </g>
+
+            <!-- head shell -->
+            <rect x="135" y="78" width="130" height="90" rx="22" fill="#2a3a4d" stroke="#1a2533" stroke-width="4"/>
+            <rect x="148" y="92" width="104" height="62" rx="14" fill="#0c1218"/>
+
+            <!-- googly eyes -->
+            <g class="eye-l">
+              <circle cx="170" cy="118" r="22" fill="#fff"/>
+              <circle class="eye-l-pupil" cx="174" cy="122" r="10" fill="#0c1218"/>
+              <circle cx="178" cy="118" r="4" fill="#fff" opacity="0.9"/>
+              <rect class="eye-l-lid" x="148" y="96" width="44" height="44" rx="12" fill="#2a3a4d" opacity="0"/>
+              <!-- lid as scaleY bar -->
+              <ellipse class="eye-l-lid" cx="170" cy="118" rx="22" ry="22" fill="#2a3a4d"/>
+            </g>
+            <g class="eye-r">
+              <circle cx="230" cy="118" r="22" fill="#fff"/>
+              <circle class="eye-r-pupil" cx="226" cy="122" r="10" fill="#0c1218"/>
+              <circle cx="230" cy="116" r="4" fill="#fff" opacity="0.9"/>
+              <ellipse class="eye-r-lid" cx="230" cy="118" rx="22" ry="22" fill="#2a3a4d"/>
+            </g>
+
+            <!-- silly smile -->
+            <path d="M165 145 Q200 168 235 145" fill="none" stroke="#c8ff2e" stroke-width="4" stroke-linecap="round"/>
+            <!-- cheek blushes -->
+            <ellipse cx="152" cy="138" rx="8" ry="5" fill="#ff4d6a" opacity="0.35"/>
+            <ellipse cx="248" cy="138" rx="8" ry="5" fill="#ff4d6a" opacity="0.35"/>
+
+            <!-- ear bolts -->
+            <circle cx="135" cy="120" r="8" fill="#1e2a38" stroke="#c8ff2e" stroke-width="2"/>
+            <circle cx="265" cy="120" r="8" fill="#1e2a38" stroke="#c8ff2e" stroke-width="2"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <p class="mode-label">MODE: <span id="modeName">GROOVE</span></p>
+
+    <div class="modes" role="group" aria-label="Dance modes">
+      <button type="button" class="mode-btn active" data-mode="groove">Groove</button>
+      <button type="button" class="mode-btn" data-mode="robot">Robot</button>
+      <button type="button" class="mode-btn" data-mode="breakdance">Breakdance</button>
+      <button type="button" class="mode-btn" data-mode="panic">Panic</button>
+    </div>
+
+    <p class="hint">Tap the bot (or a mode) to switch dances. Prefers reduced motion? It freezes mid-pose.</p>
+  </div>
+
+<script>
+(function () {
+  var modes = ['groove', 'robot', 'breakdance', 'panic'];
+  var captions = {
+    groove: [
+      'ERROR 404: DIGNITY NOT FOUND',
+      'BEEP BOOP FUNKY',
+      'SERVOS SET TO SASSY',
+      'BOOTING GROOVE.EXE',
+      'HIP ACTUATORS ONLINE'
+    ],
+    robot: [
+      'CLASSIC. STIFF. ICONIC.',
+      'CALCULATING... FUN.',
+      'STEP. STEP. BEEP.',
+      'I AM NOT A TOASTER',
+      'BINARY BOOGIE ENGAGED'
+    ],
+    breakdance: [
+      'FLOOR? WHAT FLOOR?',
+      'GYRO LOCK: DISABLED',
+      'SPINNING AT UNSAFE RPM',
+      'WARRANTY: VOIDED',
+      'HEADSPIN.EXE RUNNING'
+    ],
+    panic: [
+      'OH NO OH NO OH NO',
+      'STACK OVERFLOW: FUN',
+      'ABORT DANCE? TOO LATE',
+      'COOLANT LEAKING GROOVE',
+      'HELP I CANNOT STOP'
+    ]
+  };
+
+  var bot = document.getElementById('bot');
+  var captionEl = document.getElementById('caption');
+  var modeName = document.getElementById('modeName');
+  var buttons = document.querySelectorAll('.mode-btn');
+  var robotTap = document.getElementById('robotTap');
+  var current = 0;
+  var captionIdx = 0;
+
+  function setMode(mode) {
+    modes.forEach(function (m) {
+      bot.classList.remove('mode-' + m);
+    });
+    bot.classList.add('mode-' + mode);
+    current = modes.indexOf(mode);
+    modeName.textContent = mode.toUpperCase();
+    buttons.forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-mode') === mode);
+    });
+    var list = captions[mode];
+    captionIdx = (captionIdx + 1) % list.length;
+    captionEl.textContent = list[captionIdx];
+    // restart caption animation
+    captionEl.style.animation = 'none';
+    void captionEl.offsetWidth;
+    captionEl.style.animation = '';
+  }
+
+  function nextMode() {
+    var next = (current + 1) % modes.length;
+    setMode(modes[next]);
+  }
+
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      setMode(btn.getAttribute('data-mode'));
+    });
+  });
+
+  robotTap.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('.mode-btn')) return;
+    nextMode();
+  });
+
+  robotTap.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      nextMode();
+    }
+  });
+
+  // cycle captions gently while in same mode
+  setInterval(function () {
+    var mode = modes[current];
+    var list = captions[mode];
+    captionIdx = (captionIdx + 1) % list.length;
+    captionEl.textContent = list[captionIdx];
+    captionEl.style.animation = 'none';
+    void captionEl.offsetWidth;
+    captionEl.style.animation = '';
+  }, 3500);
+})();
+</script>
+</body>
+</html>
