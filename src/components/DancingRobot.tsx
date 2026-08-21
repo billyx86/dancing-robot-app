@@ -1,47 +1,17 @@
 import { useCallback, useEffect, useState } from 'react'
-
-type DanceMode = 'groove' | 'robot' | 'breakdance' | 'panic'
-
-const MODES: DanceMode[] = ['groove', 'robot', 'breakdance', 'panic']
-
-const CAPTIONS: Record<DanceMode, string[]> = {
-  groove: [
-    'ERROR 404: DIGNITY NOT FOUND',
-    'BEEP BOOP FUNKY',
-    'SERVOS SET TO SASSY',
-    'BOOTING GROOVE.EXE',
-    'HIP ACTUATORS ONLINE',
-  ],
-  robot: [
-    'CLASSIC. STIFF. ICONIC.',
-    'CALCULATING... FUN.',
-    'STEP. STEP. BEEP.',
-    'I AM NOT A TOASTER',
-    'BINARY BOOGIE ENGAGED',
-  ],
-  breakdance: [
-    'FLOOR? WHAT FLOOR?',
-    'GYRO LOCK: DISABLED',
-    'SPINNING AT UNSAFE RPM',
-    'WARRANTY: VOIDED',
-    'HEADSPIN.EXE RUNNING',
-  ],
-  panic: [
-    'OH NO OH NO OH NO',
-    'STACK OVERFLOW: FUN',
-    'ABORT DANCE? TOO LATE',
-    'COOLANT LEAKING GROOVE',
-    'HELP I CANNOT STOP',
-  ],
-}
+import {
+  type DanceMode,
+  MODES,
+  captionFor,
+  nextMode,
+} from '../lib/dance'
 
 export function DancingRobot() {
   const [mode, setMode] = useState<DanceMode>('groove')
   const [captionIdx, setCaptionIdx] = useState(0)
   const [captionKey, setCaptionKey] = useState(0)
 
-  const captions = CAPTIONS[mode]
-  const caption = captions[captionIdx % captions.length]
+  const caption = captionFor(mode, captionIdx)
 
   const applyMode = useCallback((next: DanceMode) => {
     setMode(next)
@@ -50,10 +20,7 @@ export function DancingRobot() {
   }, [])
 
   const cycleMode = useCallback(() => {
-    setMode((m) => {
-      const i = MODES.indexOf(m)
-      return MODES[(i + 1) % MODES.length]
-    })
+    setMode((m) => nextMode(m))
     setCaptionIdx((i) => i + 1)
     setCaptionKey((k) => k + 1)
   }, [])
@@ -70,6 +37,7 @@ export function DancingRobot() {
     <div className="flex w-full flex-col items-center gap-3">
       <p
         key={captionKey}
+        aria-live="polite"
         className="caption-anim min-h-[2.5rem] text-center text-sm sm:text-lg font-extrabold uppercase tracking-widest text-[#c8ff2e]"
       >
         {caption}
@@ -79,7 +47,7 @@ export function DancingRobot() {
         className="relative w-full max-w-[420px] aspect-square cursor-pointer select-none outline-none focus-visible:ring-2 focus-visible:ring-[#c8ff2e] focus-visible:ring-offset-4 focus-visible:ring-offset-[#0c1218] rounded-2xl"
         role="button"
         tabIndex={0}
-        aria-label="Tap to change dance mode"
+        aria-label={`Dancing robot, currently in ${mode} mode. Press to switch to the next dance mode.`}
         onClick={cycleMode}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -233,6 +201,7 @@ export function DancingRobot() {
           <button
             key={m}
             type="button"
+            aria-pressed={m === mode}
             onClick={(e) => {
               e.stopPropagation()
               applyMode(m)
