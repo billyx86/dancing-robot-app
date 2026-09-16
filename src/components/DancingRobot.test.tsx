@@ -6,6 +6,7 @@ import { DancingRobot } from './DancingRobot'
 describe('DancingRobot', () => {
   afterEach(() => {
     cleanup()
+    window.localStorage.clear()
   })
 
   it('exposes mode buttons as toggle buttons with aria-pressed', () => {
@@ -45,5 +46,30 @@ describe('DancingRobot', () => {
     expect(
       screen.getByRole('button', { name: /currently in robot mode/i }),
     ).toBeInTheDocument()
+  })
+
+  it('remembers the chosen mode across a remount (localStorage)', async () => {
+    const user = userEvent.setup()
+    const { unmount } = render(<DancingRobot />)
+    expect(
+      window.localStorage.getItem('dancing-robot.mode'),
+    ).toBe('groove')
+
+    await user.click(screen.getByRole('button', { name: 'panic' }))
+    expect(
+      window.localStorage.getItem('dancing-robot.mode'),
+    ).toBe('panic')
+
+    // Simulate a page refresh: unmount + remount.
+    unmount()
+    cleanup()
+    render(<DancingRobot />)
+
+    const group = screen.getByRole('group', { name: /dance modes/i })
+    const pressed = within(group)
+      .getAllByRole('button')
+      .filter((b) => b.getAttribute('aria-pressed') === 'true')
+    expect(pressed).toHaveLength(1)
+    expect(pressed[0]).toHaveTextContent('panic')
   })
 })

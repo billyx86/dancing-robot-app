@@ -5,13 +5,19 @@ import {
   captionFor,
   nextMode,
 } from '../lib/dance'
+import { readStoredMode, writeStoredMode } from '../lib/storage'
 
 export function DancingRobot() {
-  const [mode, setMode] = useState<DanceMode>('groove')
+  const [mode, setMode] = useState<DanceMode>(readStoredMode)
   const [captionIdx, setCaptionIdx] = useState(0)
   const [captionKey, setCaptionKey] = useState(0)
 
   const caption = captionFor(mode, captionIdx)
+
+  // Remember the chosen mode so a refresh keeps the last dance.
+  useEffect(() => {
+    writeStoredMode(mode)
+  }, [mode])
 
   const applyMode = useCallback((next: DanceMode) => {
     setMode(next)
