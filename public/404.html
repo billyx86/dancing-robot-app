@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex"/>
+<title>404 — Robot left the dance floor</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root { --bg:#0c1218; --surface:#141c26; --steel:#1e2a38; --steel-light:#2a3a4d; --lime:#c8ff2e; --lime-dim:#8ab81f; --hot:#ff4d6a; --text:#e8eef5; --muted:#7a8a9a; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; font-family: 'Outfit', system-ui, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+body {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh; text-align: center; padding: 2rem 1rem;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 100%, rgba(200,255,46,0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 20% 20%, rgba(30,42,56,0.9) 0%, transparent 50%),
+    var(--bg);
+}
+.code {
+  font-weight: 900; font-size: clamp(4rem, 18vw, 9rem); letter-spacing: -0.04em; line-height: 1;
+  background: linear-gradient(135deg, var(--lime) 0%, #fff 50%, var(--lime) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; text-transform: uppercase;
+}
+.face { width: clamp(120px, 24vw, 180px); margin: 1.5rem auto; }
+h1 { font-weight: 800; font-size: clamp(1.3rem, 5vw, 2rem); letter-spacing: -0.01em; }
+.tagline { color: var(--muted); font-weight: 600; font-size: 1rem; margin-top: 0.5rem; max-width: 34ch; }
+a.home {
+  display: inline-block; margin-top: 2rem; padding: 0.75rem 1.5rem; border-radius: 999px;
+  border: 2px solid var(--lime); background: var(--lime); color: #0a1008;
+  font-weight: 800; font-size: 0.9rem; letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+a.home:hover { transform: translateY(-2px); box-shadow: 0 0 24px rgba(200,255,46,0.35); }
+@media (prefers-reduced-motion: reduce) { a.home { transition: none; } a.home:hover { transform: none; } }
+</style>
+</head>
+<body>
+  <div class="code" aria-hidden="true">404</div>
+  <svg class="face" viewBox="0 0 64 64" role="img" aria-label="Sad robot">
+    <rect x="10" y="21" width="44" height="36" rx="10" fill="#2a3a4d" stroke="#1a2533" stroke-width="2"/>
+    <rect x="16" y="28" width="32" height="22" rx="6" fill="#0c1218"/>
+    <circle cx="25" cy="38" r="4.5" fill="#c8ff2e"/>
+    <circle cx="39" cy="38" r="4.5" fill="#c8ff2e"/>
+    <path d="M22 50 Q32 45.5 42 50" fill="none" stroke="#c8ff2e" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>
+  <h1>Robot left the dance floor</h1>
+  <p class="tagline">This page got booted. ERROR 404: PAGE NOT FOUND.</p>
+  <a class="home" href="/">Back to the dance floor</a>
+</body>
+</html>
