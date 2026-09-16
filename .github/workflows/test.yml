@@ -20,5 +20,7 @@ jobs:
         run: npm run typecheck
       - name: Test
         run: npm test
+      - name: Dance-mode parity (React app vs vanilla fallback)
+        run: node scripts/check-modes.mjs
       - name: Build
         run: npm run build
