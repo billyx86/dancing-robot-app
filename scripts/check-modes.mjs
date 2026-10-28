@@ -51,12 +51,13 @@ if (react && demoHtml && !same(react, demoHtml)) {
   console.log('  FAIL public/demo.html modes differ from React MODES')
 }
 
-// Social-meta parity guard: the React app (index.html) and the vanilla
-// fallback (public/demo.html) must both carry the Open Graph block, so a
-// shared/linked demo page doesn't preview as a bare text line. Assert the
-// tags that gate a rich card: og:title is the anchor; twitter:card must be
-// summary_large_image or the og:image is ignored. (issue: demo.html had no
-// <head> meta block, so it could never show a link-preview image.)
+// Social-meta parity guard: the React app (index.html), the vanilla
+// fallback (public/demo.html), and the 404 page (public/404.html) must all
+// carry the Open Graph block, so a shared/linked page doesn't preview as a
+// bare text line. Assert the tags that gate a rich card: og:title is the
+// anchor; twitter:card must be summary_large_image or the og:image is
+// ignored. (issue: demo.html had no <head> meta block, so it could never
+// show a link-preview image; 404.html had none either.)
 const ogTags = [
   'property="og:title"',
   'property="og:description"',
@@ -64,7 +65,7 @@ const ogTags = [
   'name="twitter:card" content="summary_large_image"',
 ]
 console.log('Social-meta parity check')
-for (const file of ['index.html', 'public/demo.html']) {
+for (const file of ['index.html', 'public/demo.html', 'public/404.html']) {
   const text = read(file)
   const missing = ogTags.filter((tag) => !text.includes(tag))
   const ok = missing.length === 0
@@ -76,7 +77,7 @@ if (failed) {
   console.error(
     '\nDance-mode lists drifted. Update the `MODES` list in src/lib/dance.ts ' +
       "and the `modes` array in index.html / public/demo.html to match.\n" +
-      'or the social-meta block drifted. Update index.html and public/demo.html to both carry the full OG block.',
+      'or the social-meta block drifted. Update index.html, public/demo.html and public/404.html to all carry the full OG block.',
   )
   process.exit(1)
 }
